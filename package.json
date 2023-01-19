@@ -14,5 +14,13 @@
   "main": "server.js",
   "author": "Ben Akram",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benakram4/moviesAPI.git"
+  },
+  "bugs": {
+    "url": "https://github.com/benakram4/moviesAPI/issues"
+  },
+  "homepage": "https://github.com/benakram4/moviesAPI#readme",
   "description": ""
 }

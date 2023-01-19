@@ -21,6 +21,15 @@ onHttpStart = () => {
     console.log("Express http server listening on: " + HTTP_PORT);
 }
 
+//start the server
+db.initialize(process.env.MONGODB_CONN_STRING).then(() => {
+    app.listen(HTTP_PORT, () => {
+        console.log(`server listening on: ${HTTP_PORT}`);
+    });
+}).catch((err) => {
+    console.log(err);
+});
+
 //create a route for the app to get index.html
 app.get('/', function (req, res) {
     //res.sendFile(__dirname + '/index.html');
@@ -37,10 +46,10 @@ app.post("/api/movies", (req, res) => {
     db.addMovie(movie)
     .then((data) => {
         //return the newly created movie object
-        res.json(data);
+        res.status(201).json(data);
     }).catch((err) => {
         //return the error message
-        res.status(201).json({ message: "Movie already exists - 201" });
+        res.status(500).json({ message: `error: ${err} - 500` });
     });
 });
 
@@ -54,10 +63,10 @@ app.get("/api/movies", (req, res) => {
     db.getAllMovies(page, perPage, title)
     .then((data) => {
         //return the array of movies
-        data ? res.json(data) : res.status(404).json({ message: "Resource not found - 404" });
+        data ? res.status(200).json(data) : res.status(404).json({ message: "Resource not found - 404" });
     }).catch((err) => {
         //return the error message
-        res.status(200).json({ message: `No movies found - error: ${err} - 200` });
+        res.status(500).json({ message: `No movies found - error: ${err} - 500` });
     });
 });
 
@@ -69,10 +78,10 @@ app.get("/api/movies/:id", (req, res) => {
     db.getMovieById(id)
     .then((data) => {
         //return the movie object
-        data ? res.json(data) : res.status(404).json({ message: "Resource not found - 404" });
+        data ? res.status(200).json(data) : res.status(404).json({ message: "Resource not found - 404" });
     }).catch((err) => {
         //return the error message
-        res.status(500).json({message: "Server internal error - 500"});
+        res.status(500).json({message: `No movies found - error: ${err} - 500`});
     });
 });
 
@@ -86,7 +95,7 @@ app.put("/api/movies/:id", (req, res) => {
     db.updateMovieById(movie, id)
     .then((data) => {
         //return the updated movie object
-        data ? res.json(data) : res.status(404).json({ message: "Resource not found - 404" });
+        data ? res.status(200).json(data) : res.status(404).json({ message: "Resource not found - 404" });
     }).catch((err) => {
         //return the error message
         res.status(400).json({message: "No Match - 400"});
@@ -101,10 +110,10 @@ app.delete("/api/movies/:id", (req, res) => {
     db.deleteMovieById(id)
     .then((data) => {
         //return the deleted movie object
-        data ? res.json(data) : res.status(404).json({ message: "Resource not found - 404" });
+        data ? res.status(204).end() : res.status(404).json({ message: "Resource not found - 404" });
     }).catch((err) => {
         //return the error message
-        res.status(204).json({ message: "no content to delete - 204"});
+        res.status(500).json({ message: `No movies found - error: ${err} - 500`});
     });
 });
 
@@ -112,14 +121,7 @@ app.use((req, res) => {
     res.status(404).send("<h1>Page Not Found - 404</h1>");
 });
 
-//start the server
-db.initialize(process.env.MONGODB_CONN_STRING).then(() => {
-    app.listen(HTTP_PORT, () => {
-        console.log(`server listening on: ${HTTP_PORT}`);
-    });
-}).catch((err) => {
-    console.log(err);
-});
+
 
 
 
